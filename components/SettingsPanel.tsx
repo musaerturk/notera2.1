@@ -112,7 +112,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onRes
               <span className="bg-notera-purple text-white px-2 py-1 rounded text-[10px]">{savedExams.length}</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {savedExams.slice(0, 4).map((exam) => (
+              {savedExams.slice(0, 10).map((exam) => (
                 <div key={exam.id} onClick={() => onSelectSavedExam(exam)} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-notera-purple transition-all cursor-pointer">
                   <h4 className="font-black text-slate-900 dark:text-white uppercase text-xs mb-1 truncate">{exam.examName}</h4>
                   <p className="text-[10px] font-bold text-slate-400 uppercase">{exam.classSection} • {new Date(exam.date).toLocaleDateString('tr-TR')}</p>

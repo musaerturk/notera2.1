@@ -72,13 +72,25 @@ const App: React.FC = () => {
         // Fetch saved exams and question bank
         const fetchData = async () => {
           try {
-            const qExams = query(collection(db, 'exams'), where('userId', '==', u.uid));
+            // Fetch exams sorted by date
+            const qExams = query(
+              collection(db, 'exams'), 
+              where('userId', '==', u.uid)
+            );
             const examSnapshot = await getDocs(qExams);
-            setSavedExams(examSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Exam)));
+            const exams = examSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Exam));
+            // Sort locally to avoid needing a composite index immediately
+            exams.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setSavedExams(exams);
 
-            const qBank = query(collection(db, 'questionBank'), where('userId', '==', u.uid));
+            const qBank = query(
+              collection(db, 'questionBank'), 
+              where('userId', '==', u.uid)
+            );
             const bankSnapshot = await getDocs(qBank);
-            setQuestionBank(bankSnapshot.docs.map(doc => doc.data() as QuestionBankItem));
+            const bankItems = bankSnapshot.docs.map(doc => doc.data() as QuestionBankItem);
+            bankItems.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            setQuestionBank(bankItems);
           } catch (error) {
             console.error("Error fetching user data:", error);
           }
@@ -136,22 +148,34 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleSaveExamToSystem = async (examToSave: Exam) => {
+    if (!user) return;
+    try {
+      await setDoc(doc(db, 'exams', examToSave.id), {
+        ...examToSave,
+        userId: user.uid,
+        updatedAt: new Date().toISOString()
+      });
+      console.log("Exam saved to system");
+      setSavedExams(prev => {
+        const exists = prev.find(e => e.id === examToSave.id);
+        if (exists) {
+          return prev.map(e => e.id === examToSave.id ? examToSave : e);
+        }
+        return [examToSave, ...prev];
+      });
+    } catch (error) {
+      console.error("Error saving exam to system:", error);
+    }
+  };
+
   const handleExamSaved = async (newExam: Exam) => {
     setExam(newExam);
     setSubmissions([]); 
     saveToLocal(newExam, []);
     
-    // If user is logged in, save to system automatically or provide option
     if (user) {
-      try {
-        await setDoc(doc(db, 'exams', newExam.id), {
-          ...newExam,
-          userId: user.uid
-        });
-        console.log("Exam saved to system");
-      } catch (error) {
-        console.error("Error saving exam to system:", error);
-      }
+      await handleSaveExamToSystem(newExam);
     }
     
     setCurrentView('exam-paper');
@@ -210,7 +234,7 @@ const App: React.FC = () => {
       case 'analytics': return <AnalyticsView submissions={submissions} exam={exam!} settings={settings} onBack={() => setCurrentView('dashboard')} history={examHistory} />;
       case 'question-prep': return <QuestionPrep onQuestionsGenerated={(q) => { setPrefilledQuestions(q); setCurrentView('setup'); }} />;
       case 'settings': return <SettingsPanel settings={settings} onUpdate={(s) => { setSettings(s); applyTheme(s.theme); localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }} onResetAll={() => { localStorage.clear(); window.location.reload(); }} savedExams={savedExams} questionBank={questionBank} onSelectSavedExam={(e) => { setExam(e); setCurrentView('exam-paper'); }} onNavigate={setCurrentView} />;
-      case 'exam-paper': return <ExamPaper exam={exam!} settings={settings} onBack={() => setCurrentView('setup')} onStartGrading={() => setCurrentView('upload')} />;
+      case 'exam-paper': return <ExamPaper exam={exam!} settings={settings} onBack={() => setCurrentView('setup')} onStartGrading={() => setCurrentView('upload')} onSave={handleSaveExamToSystem} />;
       case 'admin-login': return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
           <input type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} placeholder="Admin Şifresi" className="px-6 py-4 rounded-2xl bg-white dark:bg-slate-800 border-2 outline-none focus:border-notera-purple transition-all" />

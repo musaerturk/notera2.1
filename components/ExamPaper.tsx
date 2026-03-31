@@ -9,9 +9,10 @@ interface ExamPaperProps {
   settings: UserSettings;
   onBack: () => void;
   onStartGrading: () => void;
+  onSave?: (exam: Exam) => void;
 }
 
-const ExamPaper: React.FC<ExamPaperProps> = ({ exam, settings, onBack, onStartGrading }) => {
+const ExamPaper: React.FC<ExamPaperProps> = ({ exam, settings, onBack, onStartGrading, onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -23,11 +24,9 @@ const ExamPaper: React.FC<ExamPaperProps> = ({ exam, settings, onBack, onStartGr
 
     setIsSaving(true);
     try {
-      await setDoc(doc(db, 'exams', exam.id), {
-        ...exam,
-        userId: auth.currentUser.uid,
-        savedAt: new Date().toISOString()
-      });
+      if (onSave) {
+        await onSave(exam);
+      }
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
