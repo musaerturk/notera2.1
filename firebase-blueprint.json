@@ -1,0 +1,69 @@
+
+{
+  "entities": {
+    "Exam": {
+      "title": "Exam",
+      "description": "Sınav bilgileri ve cevap anahtarı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["open-ended", "multiple-choice"] },
+        "classSection": { "type": "string" },
+        "courseName": { "type": "string" },
+        "examName": { "type": "string" },
+        "termNo": { "type": "string" },
+        "examNo": { "type": "string" },
+        "teacherName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "questions": { "type": "array" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "type", "classSection", "courseName", "examName", "questions", "userId"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Kullanıcı profili",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "branch": { "type": "string" },
+        "savedClasses": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["uid", "email"]
+    },
+    "QuestionBankItem": {
+      "title": "QuestionBankItem",
+      "description": "Soru bankasındaki bir soru",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "expectedAnswer": { "type": "string" },
+        "maxScore": { "type": "number" },
+        "unitName": { "type": "string" },
+        "classLevel": { "type": "string" },
+        "subject": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "text", "expectedAnswer", "unitName", "classLevel", "userId"]
+    }
+  },
+  "firestore": {
+    "/exams/{examId}": {
+      "schema": "Exam",
+      "description": "Kullanıcıların oluşturduğu sınavlar"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Kullanıcı bilgileri"
+    },
+    "/questionBank/{questionId}": {
+      "schema": "QuestionBankItem",
+      "description": "Kullanıcıların soru bankası"
+    }
+  }
+}
