@@ -24,9 +24,13 @@ import { auth, db, signInWithGoogle, logout } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
+import ExamoraHub from './components/ExamoraHub';
+import EduMetrikHub from './components/EduMetrikHub';
+import ReadHub from './components/ReadHub';
+
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'setup' | 'upload' | 'dashboard' | 'detail' | 'analytics' | 'question-prep' | 'settings' | 'exam-paper' | 'info' | 'admin' | 'admin-login' | 'pricing' | 'checkout' | 'examora-info' | 'edumetrik-info' | 'answer-key-upload'>('info');
+  const [currentView, setCurrentView] = useState<'home' | 'setup' | 'upload' | 'dashboard' | 'detail' | 'analytics' | 'question-prep' | 'settings' | 'exam-paper' | 'info' | 'admin' | 'admin-login' | 'pricing' | 'checkout' | 'examora-info' | 'edumetrik-info' | 'answer-key-upload' | 'examora-hub' | 'edumetrik-hub' | 'read-hub'>('info');
   const [exam, setExam] = useState<Exam | null>(null);
   const [submissions, setSubmissions] = useState<StudentSubmission[]>([]);
   const [examHistory, setExamHistory] = useState<GradedExam[]>([]);
@@ -62,6 +66,8 @@ const App: React.FC = () => {
           displayName: u.displayName,
           role: 'user'
         }, { merge: true });
+        
+        if (currentView === 'info') setCurrentView('home');
         
         // Fetch saved exams and question bank
         const fetchData = async () => {
@@ -191,6 +197,9 @@ const App: React.FC = () => {
       case 'pricing': return <PricingView onSelectPlan={(p) => { if(p.price === 0) setCurrentView('home'); else { setSelectedPlan(p); setCurrentView('checkout'); }}} />;
       case 'checkout': return <CheckoutView plan={selectedPlan!} onCancel={() => setCurrentView('pricing')} onSuccess={() => { setSettings({...settings, isPremium: true}); setCurrentView('home'); }} />;
       case 'home': return <HomePanel onNavigate={startNewExamFlow} onResume={(v) => setCurrentView(v)} isExamSet={!!exam} hasSubmissions={submissions.length > 0} savedExams={savedExams} questionBank={questionBank} onSelectSavedExam={(e) => { setExam(e); setCurrentView('exam-paper'); }} />;
+      case 'examora-hub': return <ExamoraHub onNavigate={(v) => setCurrentView(v)} />;
+      case 'edumetrik-hub': return <EduMetrikHub onNavigate={(v) => setCurrentView(v)} isExamSet={!!exam} />;
+      case 'read-hub': return <ReadHub savedExams={savedExams} onSelectSavedExam={(e) => { setExam(e); setCurrentView('exam-paper'); }} onUploadAnswerKey={() => setCurrentView('answer-key-upload')} />;
       case 'answer-key-upload': return <AnswerKeyUpload onParsed={handleAnswerKeyParsed} onCancel={() => setCurrentView('home')} />;
       case 'setup': return <ExamSetup initialExam={exam} onSave={handleExamSaved} prefilledQuestions={prefilledQuestions} settings={settings} />;
       case 'upload': return <UploadSection exam={exam!} onUpload={handleUploadComplete} settings={settings} />;
@@ -200,7 +209,7 @@ const App: React.FC = () => {
         return sub ? <GradingDetail submission={sub} exam={exam!} onBack={() => setCurrentView('dashboard')} onUpdate={(u) => { const updated = submissions.map(s => s.id === u.id ? u : s); setSubmissions(updated); saveToLocal(exam, updated); }} /> : null;
       case 'analytics': return <AnalyticsView submissions={submissions} exam={exam!} settings={settings} onBack={() => setCurrentView('dashboard')} history={examHistory} />;
       case 'question-prep': return <QuestionPrep onQuestionsGenerated={(q) => { setPrefilledQuestions(q); setCurrentView('setup'); }} />;
-      case 'settings': return <SettingsPanel settings={settings} onUpdate={(s) => { setSettings(s); applyTheme(s.theme); localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }} onResetAll={() => { localStorage.clear(); window.location.reload(); }} />;
+      case 'settings': return <SettingsPanel settings={settings} onUpdate={(s) => { setSettings(s); applyTheme(s.theme); localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }} onResetAll={() => { localStorage.clear(); window.location.reload(); }} savedExams={savedExams} questionBank={questionBank} onSelectSavedExam={(e) => { setExam(e); setCurrentView('exam-paper'); }} onNavigate={setCurrentView} />;
       case 'exam-paper': return <ExamPaper exam={exam!} settings={settings} onBack={() => setCurrentView('setup')} onStartGrading={() => setCurrentView('upload')} />;
       case 'admin-login': return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">

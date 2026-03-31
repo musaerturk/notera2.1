@@ -35,38 +35,42 @@ const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, isExamSet, isP
               DEĞERLENDİRMENİN AKILLI YOLU
             </span>
           </div>
-
-          <button 
-            onClick={() => onNavigate('home')}
-            className={`px-6 py-2.5 rounded-full text-[11px] font-black tracking-widest uppercase transition-all ${
-              currentView === 'home' || currentView === 'info'
-                ? 'bg-notera-purple text-white shadow-xl shadow-notera-purple/20' 
-                : 'text-slate-400 hover:text-notera-purple bg-slate-50 dark:bg-slate-900'
-            }`}
-          >
-            ANA PANEL
-          </button>
         </div>
         
-        {/* MODÜLER NAVİGASYON (EXAMORA & EDUMETRİK) */}
-        <nav className="hidden lg:flex items-center gap-4">
-          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800">
-            <span className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] px-3">EXAMORA</span>
-            <button onClick={() => onNavigate('question-prep')} className={navItemClass('question-prep', 'bg-notera-purple')}>HAZIRLA</button>
-            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-            <button onClick={() => onNavigate('setup')} className={navItemClass('setup', 'bg-notera-purple')}>OLUŞTUR</button>
-            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-            <button onClick={() => onNavigate('upload')} disabled={!isExamSet} className={navItemClass('upload', 'bg-notera-purple')}>OKU</button>
-          </div>
+        {/* BASİTLEŞTİRİLMİŞ NAVİGASYON */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <button 
+            onClick={() => onNavigate('read-hub')}
+            className={`px-6 py-3 rounded-2xl text-[11px] font-black tracking-widest uppercase transition-all ${
+              currentView === 'read-hub' || currentView === 'upload' || currentView === 'answer-key-upload'
+                ? 'bg-notera-purple text-white shadow-xl shadow-notera-purple/20' 
+                : 'text-slate-400 hover:text-notera-purple bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800'
+            }`}
+          >
+            OKU
+          </button>
 
-          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-2"></div>
+          <button 
+            onClick={() => onNavigate('examora-hub')}
+            className={`px-6 py-3 rounded-2xl text-[11px] font-black tracking-widest uppercase transition-all ${
+              currentView === 'examora-hub' || currentView === 'question-prep' || currentView === 'setup'
+                ? 'bg-notera-purple text-white shadow-xl shadow-notera-purple/20' 
+                : 'text-slate-400 hover:text-notera-purple bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800'
+            }`}
+          >
+            EXAMORA
+          </button>
 
-          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800">
-            <span className="text-[8px] font-black text-notera-turquoise/50 uppercase tracking-[0.2em] px-3">EDUMETRİK</span>
-            <button onClick={() => onNavigate('dashboard')} disabled={!isExamSet} className={navItemClass('dashboard', 'bg-notera-turquoise')}>ANALİZ</button>
-            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-            <button onClick={() => onNavigate('analytics')} disabled={!isExamSet} className={navItemClass('analytics', 'bg-notera-turquoise')}>RAPOR</button>
-          </div>
+          <button 
+            onClick={() => onNavigate('edumetrik-hub')}
+            className={`px-6 py-3 rounded-2xl text-[11px] font-black tracking-widest uppercase transition-all ${
+              currentView === 'edumetrik-hub' || currentView === 'dashboard' || currentView === 'analytics'
+                ? 'bg-notera-turquoise text-white shadow-xl shadow-notera-turquoise/20' 
+                : 'text-slate-400 hover:text-notera-turquoise bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800'
+            }`}
+          >
+            EDUMETRİK
+          </button>
         </nav>
 
         {/* SAĞ AKSİYONLAR */}
@@ -78,15 +82,16 @@ const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, isExamSet, isP
                 <button onClick={onLogout} className="text-[8px] font-bold text-rose-500 uppercase tracking-widest hover:underline mt-1">ÇIKIŞ YAP</button>
               </div>
               {user.photoURL && <img src={user.photoURL} alt="User" className="w-10 h-10 rounded-xl border-2 border-notera-purple/20" referrerPolicy="no-referrer" />}
+              
+              <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-1"></div>
+              
+              <button onClick={() => onNavigate('settings')} className={`p-2.5 rounded-2xl border transition-all ${currentView === 'settings' ? 'bg-notera-purple text-white shadow-lg' : 'bg-white dark:bg-slate-900 text-slate-400 border-slate-100 dark:border-slate-800'}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              </button>
             </div>
           ) : (
-            <button onClick={onLogin} className="px-5 py-2.5 rounded-2xl bg-notera-purple text-white text-[10px] font-black uppercase tracking-widest hover:bg-notera-dark transition-all shadow-lg shadow-notera-purple/20">GİRİŞ YAP</button>
+            <button onClick={onLogin} className="px-6 py-3 rounded-2xl bg-notera-purple text-white text-[10px] font-black uppercase tracking-widest hover:bg-notera-dark transition-all shadow-xl shadow-notera-purple/20">GİRİŞ / KAYIT</button>
           )}
-          <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 mx-1"></div>
-          <button onClick={() => onNavigate('pricing')} className="px-5 py-2.5 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all">YÜKSELT</button>
-          <button onClick={() => onNavigate('settings')} className={`p-2.5 rounded-2xl border transition-all ${currentView === 'settings' ? 'bg-notera-purple text-white' : 'bg-white text-slate-400'}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          </button>
         </div>
       </div>
     </header>
