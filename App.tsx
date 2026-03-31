@@ -225,7 +225,30 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${settings.theme === 'dark' ? 'bg-notera-dark text-slate-100' : 'bg-notera-gray text-slate-900'}`}>
       {showPrivacy && <PrivacyModal onAccept={() => { setShowPrivacy(false); localStorage.setItem(STORAGE_KEYS.PRIVACY, 'true'); }} />}
-      <Header currentView={currentView} onNavigate={(v) => setCurrentView(v)} isExamSet={!!exam} isPremium={settings.isPremium} user={user} onLogin={signInWithGoogle} onLogout={logout} />
+      <Header 
+        currentView={currentView} 
+        onNavigate={(v) => setCurrentView(v)} 
+        isExamSet={!!exam} 
+        isPremium={settings.isPremium} 
+        user={user} 
+        onLogin={async () => {
+          try {
+            await signInWithGoogle();
+          } catch (error: any) {
+            console.error("Login Error:", error);
+            if (error.code === 'auth/popup-closed-by-user') {
+              // User closed the popup, ignore
+            } else if (error.code === 'auth/network-request-failed') {
+              alert("Bağlantı hatası: Lütfen internet bağlantınızı kontrol edin veya tarayıcınızın üçüncü taraf çerezlerine izin verdiğinden emin olun.");
+            } else if (error.code === 'auth/internal-error' || error.code === 'auth/web-storage-unsupported') {
+              alert("Tarayıcı kısıtlaması: Lütfen tarayıcınızın üçüncü taraf çerezlerine izin verdiğinden emin olun veya uygulamayı yeni bir sekmede açmayı deneyin.");
+            } else {
+              alert("Giriş sırasında bir hata oluştu (" + error.code + "): " + error.message + "\n\nLütfen tarayıcı ayarlarınızı kontrol edin veya uygulamayı yeni sekmede açın.");
+            }
+          }
+        }} 
+        onLogout={logout} 
+      />
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
         {renderView()}
       </main>
